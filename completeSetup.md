@@ -120,6 +120,6 @@ Your existing API can read from both hot and cold tiers seamlessly:
 | **Performance**          | Cold data accessible within seconds                          |
 | **No API Changes**       | Existing clients keep using the same APIs                    |
 ---
-## Archotecture Diagram
+## Architecture Diagram
 <img width="587" height="611" alt="image" src="https://github.com/user-attachments/assets/c13e97dd-db42-43cf-b8da-0d8e598edc59" />
 ---
