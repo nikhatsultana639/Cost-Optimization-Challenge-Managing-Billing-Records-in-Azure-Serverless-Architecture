@@ -1,30 +1,30 @@
-# 📄 Cold Data Archival Strategy: Azure Cosmos DB to Azure Blob Storage (Cool Tier)
+# Cold Data Archival Strategy: Azure Cosmos DB to Azure Blob Storage (Cool Tier)
 
-## 📌 Objective
+## Objective
 
 To reduce storage costs by migrating **billing records older than 3 months** from **Azure Cosmos DB** to **Azure Blob Storage (Cool Tier)**, ensuring:
 
-- ✅ No data loss
-- ✅ Seamless access to historical data
-- ✅ No changes to existing API contracts
-- ✅ Minimal ongoing maintenance
+- No data loss
+- Seamless access to historical data
+- No changes to existing API contracts
+- Minimal ongoing maintenance
 
 ---
 
-## 🧱 Architecture Overview
+## Architecture Overview
 
-This solution uses a **tiered storage** model:
+This solution uses a **storage** model:
 
-| Tier        | Storage Type                  | Data Range                  |
-|-------------|-------------------------------|-----------------------------|
-| **Hot Tier**  | Azure Cosmos DB               | Recent records (≤ 3 months) |
-| **Cold Tier** | Azure Blob Storage (Cool Tier) | Archived records (> 3 months) |
+|Storage Type                       | Data Range                    |
+|-----------------------------------|-------------------------------|
+| Azure Cosmos DB                   | Recent records (≤ 3 months)   |
+| Azure Blob Storage (Cool Tier)    | Archived records (> 3 months) |
 
 ---
 
-## 🛠️ Migration Strategy
+##  Migration Strategy
 
-### ✅ Phase 1: One-Time Historical Data Migration
+### Phase 1: One-Time Historical Data Migration
 
 #### Tool
 - **Azure Cosmos DB Data Migration Tool (Desktop)**
@@ -55,17 +55,17 @@ Export existing records older than 3 months and upload them to Azure Blob Storag
 
 ---
 
-### ✅ Phase 2: Ongoing Cold Data Migration (Automated)
+### Phase 2: Ongoing Cold Data Migration (Automated)
 
 You can automate ongoing archival using **Azure Function App** or **Azure Data Factory (ADF)**.
 
 ---
 
-## Option A: 🚀 Azure Function App (Timer-Triggered)
+## Option A: Azure Function App (Timer-Triggered)
 
 > Use this approach if you prefer a **lightweight, code-first, serverless solution**.
 
-### 📁 Relevant Files
+###  Relevant Files
 
 - `host.json`
 - `function_app/init.py`
@@ -79,7 +79,7 @@ You can automate ongoing archival using **Azure Function App** or **Azure Data F
 
 ---
 
-## Option B: 🔄 Azure Data Factory (If Microsoft Fabric License Available)
+## Option B: Azure Data Factory (If Microsoft Fabric License Available)
 
 > Ideal for teams already using **Azure Data Factory or Microsoft Fabric**.
 
@@ -92,7 +92,7 @@ You can automate ongoing archival using **Azure Function App** or **Azure Data F
 
 ---
 
-## ✅ Unified Data Access Layer
+##  Unified Data Access Layer
 
 Your existing API can read from both hot and cold tiers seamlessly:
 
@@ -100,12 +100,9 @@ Your existing API can read from both hot and cold tiers seamlessly:
 2. If not found, fallback to **Blob Storage**
 3. Return the result to the client
 
-📁 Reference File:  
-- `get_record.py`
-
 ---
 
-## 🔐 Security & Best Practices
+## Security & Best Practices
 
 - Use **Managed Identity** to access Cosmos DB and Blob securely
 - Enable **Soft Delete** and **Versioning** on Blob Storage
@@ -114,38 +111,13 @@ Your existing API can read from both hot and cold tiers seamlessly:
 
 ---
 
-## 💰 Business Value
+## Business Value
 
-| Benefit               | Description                                                  |
-|------------------------|--------------------------------------------------------------|
-| **Cost Optimization**  | Blob Cool tier is 50–70% cheaper than Cosmos DB for archive  |
-| **Retention Compliance** | Maintain historical records for audits                     |
-| **Performance**        | Cold data accessible within seconds                          |
-| **No API Changes**     | Existing clients keep using the same APIs                    |
+| Benefit                  | Description                                                  |
+|--------------------------|--------------------------------------------------------------|
+| **Cost Optimization**    | Blob Cool tier is 50–70% cheaper than Cosmos DB for archive  |
+| **Retention Compliance** | Maintain historical records for audits                       |
+| **Performance**          | Cold data accessible within seconds                          |
+| **No API Changes**       | Existing clients keep using the same APIs                    |
 
 ---
-
-## 📦 Deployment Reference
-
-📁 **Blob Storage Deployment Script**  
-- `blob_storage.bicep`
-
-```bicep
-resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: 'mycoolstorage${uniqueString(resourceGroup().id)}'
-  location: resourceGroup().location
-  sku: {
-    name: 'Standard_GRS'
-  }
-  kind: 'StorageV2'
-  properties: {
-    accessTier: 'Cool'
-  }
-}
-
-resource blobContainer 'Microsoft.Storage/storageAccounts/blobServices/containers@2023-01-01' = {
-  name: '${storage.name}/default/my-cool-container'
-  properties: {
-    publicAccess: 'None'
-  }
-}
